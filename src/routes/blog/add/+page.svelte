@@ -28,7 +28,7 @@
 			// need user.id
 			let { data: thePost, error } = await supabase
 				.from('posts')
-				.insert({ ...post, broken: 'should not work', user_id: user.id })
+				.insert({ ...post, user_id: user.id })
 				.select()
 				.single();
 			console.log({ thePost, error });
