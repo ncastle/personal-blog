@@ -1,4 +1,5 @@
-import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
+// import { error } from '@sveltejs/kit';
 
 type Post = {
 	title: string;
@@ -9,8 +10,7 @@ const posts: Post[] = [
 	{ title: 'Second Post', content: 'This is my second ever post!!' }
 ];
 
-/** @type {import('./$types').PageLoad} */
-export function load({ url, ...rest }) {
+export const load: PageLoad = async ({ url, ...rest }) => {
 	console.log('PageLoad data:', { url, rest });
 
 	return {
@@ -18,4 +18,4 @@ export function load({ url, ...rest }) {
 	};
 
 	// throw error(404, 'Not found');
-}
+};
