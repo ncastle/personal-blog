@@ -7,7 +7,6 @@
 
 <style>
 	nav {
-		margin-bottom: 1rem;
 		height: 3rem;
 		border-radius: 0.5rem;
 		display: flex;

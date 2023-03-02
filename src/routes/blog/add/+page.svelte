@@ -1,18 +1,64 @@
-<script>
-	/** @type {import('./$types').ActionData} */
-	export let form;
+<script lang="ts">
+	import { supabase } from '$lib/supabase';
+	import { page } from '$app/stores';
+	import type { AuthSession } from '@supabase/supabase-js';
+	import type { ActionData } from './$types';
+	import type { Post } from '$lib/types';
+
+	export let form: ActionData;
+	let loading = false;
+	let errorMessage: string;
+
+	$: session = $page.data.session as AuthSession;
+	$: user = session?.user;
+
+	let newPost: Post = {
+		title: '',
+		content: ''
+	};
+
+	const addPost = async (post: Post) => {
+		if (!user) {
+			alert('Must be logged in with valid user to submit post');
+			return;
+		}
+		try {
+			loading = true;
+			// supabase insert to posts table
+			// need user.id
+			let { data: thePost, error } = await supabase
+				.from('posts')
+				.insert({ ...post, broken: 'should not work', user_id: user.id })
+				.select()
+				.single();
+			console.log({ thePost, error });
+			if (error) throw error;
+		} catch (error) {
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			} else {
+				errorMessage = 'Unexpected error, contact dev';
+			}
+			console.error(error);
+		} finally {
+			loading = false;
+		}
+	};
 </script>
 
-<h1>Add a post</h1>
-
-<form method="POST">
+<form on:submit|preventDefault={() => addPost(newPost)}>
+	<h1>Add a post</h1>
 	<label for="title">Title</label>
-	<input class="input" type="text" name="title" id="title" />
+	<input class="input" type="text" name="title" id="title" bind:value={newPost.title} required />
 
 	<label for="content">Content</label>
-	<textarea class="input" name="content" id="content" />
+	<textarea class="input" name="content" id="content" bind:value={newPost.content} required />
 
 	<button class="input">Submit</button>
+
+	{#if errorMessage}
+		<p style:color="red">An error has occurred: {errorMessage}</p>
+	{/if}
 </form>
 
 {#if form?.success}
@@ -33,10 +79,10 @@
 		flex-direction: column;
 		gap: 1rem;
 		padding: 1rem;
-		margin: auto;
+		margin: 1rem auto 0 auto;
 	}
 
-	form > * {
+	form > *:not(h1) {
 		font-size: 1rem;
 	}
 
@@ -56,5 +102,10 @@
 	button {
 		padding: 0.5rem;
 		border-radius: 0.5rem;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background-color: #afafaf;
 	}
 </style>
