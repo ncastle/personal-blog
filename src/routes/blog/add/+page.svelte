@@ -32,6 +32,8 @@
 				.select()
 				.single();
 			console.log({ thePost, error });
+			newPost.title = '';
+			newPost.content = '';
 			if (error) throw error;
 		} catch (error) {
 			if (error instanceof Error) {
